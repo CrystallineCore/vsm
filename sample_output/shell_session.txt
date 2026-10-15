@@ -1,0 +1,23 @@
+Loaded 3 sample stages (user::lang C -> Rust, user::city Chennai).
+Versioned Semantic Memory shell. Type `help` or `help <command>`.
+Example:  put user::lang Rust | I switched to Rust
+
+vsm>   layered    -> 'Rust' (stage 2)
+  naive RAG  -> 'C' (stage 0)
+vsm>   stage   0: 'C'  "My favourite programming language is C."
+  stage   2: 'Rust'  "These days my favourite programming language is Rust."
+vsm>   'C'  (stage 0: "My favourite programming language is C.")
+vsm>   stage 3 sealed
+vsm>   stage 4 sealed
+vsm>   compensating stage: 5; conflicts (changed later, left alone): []
+vsm>   stage 6 sealed (tombstone)
+vsm>   PRESENT in stored bytes
+vsm>   {'concept_sha256': 'eb471ceb18b83957', 'at_stage': 6, 'layers_rewritten': 2, 'unix_time': 1790268784.224}
+vsm>   absent from stored bytes
+vsm>   {'merged_layers': 5, 'records_before': 4, 'records_after': 2, 'superseded_dropped': 2, 'tombstones_dropped': 0}
+vsm>   refused: can roll back at most 2 stage(s); older stages were merged by compaction
+vsm>   [compacted] stages 0-4    user::lang=Rust, user::city=Atlantis
+  [stage    ] stage 5       user::city=Chennai
+  [stage    ] stage 6       
+  rollback horizon: 2
+vsm> 

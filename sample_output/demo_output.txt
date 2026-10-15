@@ -1,0 +1,83 @@
+
+== 1. Memory is revised, not just added to ===========================
+  Session 0: the user tells the assistant some facts.
+  Session 1: the user changes their mind.
+  
+  Q: "Which programming language is my favourite?"
+      layered (this project)   -> Rust
+      naive RAG                -> C
+      mutable + soft delete    -> Rust
+  ✓ naive RAG finds the right concept but returns the STALE version (C)
+  ✓ layered store returns the current version (Rust)
+  ✓ mutable store is also correct at HEAD...
+
+== 2. ...but only the layered store remembers how it got here ========
+  history('user::lang'):
+      stage 0: C     "My favourite programming language is C."
+      stage 1: Rust  "These days my favourite programming language is Rust."
+  ✓ time travel: as_of=0 answers 'C' (what we believed after session 0)
+  ✓ mutable store cannot: NotSupported('mutable store overwrote history')
+
+== 3. Undoing a poisoned memory without losing later good ones =======
+  Session 2: an untrusted web page injects a false 'fact'.
+  Session 3: the user genuinely switches editor.
+  ✓ memory is now poisoned (Atlantis)
+    [stage    ] stage 0      user::lang=C, user::city=Chennai, user::editor=Vim, user::ph  <- session 0
+    [stage    ] stage 1      user::lang=Rust  <- session 1
+    [stage    ] stage 2      user::city=Atlantis  <- from untrusted web page
+    [stage    ] stage 3      user::editor=Helix  <- session 3
+  
+  Option A, global rollback(2), tried on a free O(#layers) snapshot:
+      city=Chennai, editor=Vim
+  ✓ global rollback also throws away the good Helix update
+  
+  Option B, selective revert(stage 2), like `git revert`:
+      wrote compensating stage 4; conflicts=[]
+  ✓ revert removed Atlantis and kept Helix
+  ✓ the poisoned write is still in the audit trail, not silently rewritten
+
+== 4. Delete (reversible) vs forget (physical erasure) ===============
+  ✓ after delete(): the phone number is hidden from queries
+  ✓ ...but its bytes are still stored, so the delete is undoable
+  ✓ rollback(1) on a snapshot undoes the delete
+  ✓ mutable soft-delete also still holds the bytes, and cannot undo either
+  ✓ naive RAG still RETURNS the deleted phone number
+  
+  User: 'Forget my phone number. Really.'
+      erasure log entry (hash only, no content): {'concept_sha256': '46d4b389b8bcf014', 'at_stage': 5, 'layers_rewritten': 2, 'unix_time': 1790268784.178}
+  ✓ after forget(): the number is physically absent from every stored byte
+  ✓ rollback past the delete does NOT resurrect forgotten data
+
+== 5. Compaction: bounded storage, rollback horizon = W ==============
+  ✓ before compaction: deleted address bytes remain
+      compact(W=4): {'merged_layers': 16, 'records_before': 17, 'records_after': 4, 'superseded_dropped': 12, 'tombstones_dropped': 1}
+      layers 20 -> 5, records 21 -> 8, bytes 3041 -> 1084
+    [compacted] stages 0-15  user::lang=Rust, user::city=Chennai, user::editor=Helix, use  <- compacted 16 layer(s)
+    [stage    ] stage 16     user::steps=6000  <- day 8
+    [stage    ] stage 17     user::steps=6250  <- day 9
+    [stage    ] stage 18     user::steps=6500  <- day 10
+    [stage    ] stage 19     user::steps=6750  <- day 11
+  ✓ storage shrank
+  ✓ tombstoned data below the horizon is physically gone
+  ✓ rollback horizon is exactly W = 4
+  ✓ rollback(5) refused honestly: can roll back at most 4 stage(s); older stages were merged by compaction
+  ✓ as-of queries into compacted history are refused, not answered wrongly
+  ✓ current answers are unchanged by compaction
+
+== 6. Persistence: reopen with state and horizon intact ==============
+      saved 1084 bytes to memory.json
+  ✓ reloaded store has identical live state
+  ✓ reloaded store can still roll back 4 stages
+
+== 7. Capability summary =============================================
+                                layered   mutable   naive RAG 
+  correct value at HEAD         yes       yes       NO        
+  hides deleted data            yes       yes       NO        
+  physically erases on request  yes       yes*      NO        
+  as-of / audit history         yes       NO        NO        
+  global rollback               yes       NO        NO        
+  selective revert              yes       NO        NO        
+  bounded storage               yes       yes       NO        
+  * a mutable store can hard-delete a row, but only by giving up history.
+
+  All 25 demo checks passed.

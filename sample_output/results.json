@@ -1,0 +1,140 @@
+{
+  "args": {
+    "seeds": 5,
+    "entities": 40,
+    "stages": 12,
+    "out": "results.json"
+  },
+  "backends": {
+    "naive RAG": {
+      "accuracy": 0.1709090909090909,
+      "resurfacing": 1.0,
+      "physically_erased": 0.0,
+      "erased_old": 0.0,
+      "bytes": 34723.8,
+      "latency_us": 325.74248499997793,
+      "rollback": {
+        "1": "n/a",
+        "2": "n/a",
+        "4": "n/a",
+        "8": "n/a"
+      }
+    },
+    "mutable + soft delete": {
+      "accuracy": 1.0,
+      "resurfacing": 0.0,
+      "physically_erased": 0.0,
+      "erased_old": 0.0,
+      "bytes": 16350.2,
+      "latency_us": 100.73394166681737,
+      "rollback": {
+        "1": "n/a",
+        "2": "n/a",
+        "4": "n/a",
+        "8": "n/a"
+      }
+    },
+    "layered, no compaction": {
+      "accuracy": 1.0,
+      "resurfacing": 0.0,
+      "physically_erased": 0.0,
+      "erased_old": 0.0,
+      "bytes": 39759.0,
+      "latency_us": 107.81702166677103,
+      "rollback": {
+        "1": 1.0,
+        "2": 1.0,
+        "4": 1.0,
+        "8": 1.0
+      }
+    },
+    "layered, compact W=4": {
+      "accuracy": 1.0,
+      "resurfacing": 0.0,
+      "physically_erased": 0.22000000000000003,
+      "erased_old": 1.0,
+      "bytes": 21657.8,
+      "latency_us": 101.09275000009652,
+      "rollback": {
+        "1": 1.0,
+        "2": 1.0,
+        "4": 1.0,
+        "8": "beyond"
+      }
+    }
+  },
+  "retention_sweep": {
+    "1": {
+      "accuracy": 1.0,
+      "resurfacing": 0.0,
+      "physically_erased": 0.7,
+      "erased_old": 1.0,
+      "bytes": 13767.2,
+      "latency_us": 93.00403999986884,
+      "rollback": {
+        "1": 1.0,
+        "2": "beyond",
+        "4": "beyond",
+        "8": "beyond"
+      }
+    },
+    "2": {
+      "accuracy": 1.0,
+      "resurfacing": 0.0,
+      "physically_erased": 0.48,
+      "erased_old": 1.0,
+      "bytes": 16352.4,
+      "latency_us": 94.8486600001767,
+      "rollback": {
+        "1": 1.0,
+        "2": 1.0,
+        "4": "beyond",
+        "8": "beyond"
+      }
+    },
+    "4": {
+      "accuracy": 1.0,
+      "resurfacing": 0.0,
+      "physically_erased": 0.22000000000000003,
+      "erased_old": 1.0,
+      "bytes": 21657.8,
+      "latency_us": 100.27612999995958,
+      "rollback": {
+        "1": 1.0,
+        "2": 1.0,
+        "4": 1.0,
+        "8": "beyond"
+      }
+    },
+    "8": {
+      "accuracy": 1.0,
+      "resurfacing": 0.0,
+      "physically_erased": 0.02,
+      "erased_old": 1.0,
+      "bytes": 32079.2,
+      "latency_us": 101.69770166650474,
+      "rollback": {
+        "1": 1.0,
+        "2": 1.0,
+        "4": 1.0,
+        "8": 1.0
+      }
+    },
+    "none": {
+      "accuracy": 1.0,
+      "resurfacing": 0.0,
+      "physically_erased": 0.0,
+      "erased_old": NaN,
+      "bytes": 39759.0,
+      "latency_us": 105.70632666656365,
+      "rollback": {
+        "1": 1.0,
+        "2": 1.0,
+        "4": 1.0,
+        "8": 1.0
+      }
+    }
+  },
+  "horizon_law_holds": true,
+  "erasure_law_holds": true
+}
